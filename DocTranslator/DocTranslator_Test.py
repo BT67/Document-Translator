@@ -1,5 +1,3 @@
-from io import BytesIO
-
 from pptx import Presentation
 from googletrans import Translator
 from httpcore import SyncHTTPProxy

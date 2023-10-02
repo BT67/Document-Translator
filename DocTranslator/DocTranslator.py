@@ -1,6 +1,4 @@
 import argparse
-from io import BytesIO
-
 from pptx import Presentation
 from googletrans import Translator
 from httpcore import SyncHTTPProxy
@@ -34,18 +32,16 @@ def translate_document(file, from_lang, to_lang):
 
 def translate_slideshow(file, from_lang, to_lang):
     print(f"Translating slideshow: {file} from {from_lang} to {to_lang} \n")
-    presentation_from = Presentation(file)
-    for slide in presentation_from.slides:
+    presentation = Presentation(file)
+    for slide in presentation.slides:
         for shape in slide.shapes:
             if hasattr(shape, "text"):
                 if len(shape.text) > 1:
                     print("Original text=" + shape.text)
                     print("Translated text=" + str(translator.translate(shape.text, dest=to_lang).text) + "\n")
                     shape.text = translator.translate(shape.text, dest=to_lang).text
-    filename = file[:file.rfind('.')] + "_" + to_lang
-    presentation_to = Presentation(filename)
-    output = BytesIO()
-    presentation_to.save(output)
+    filename = file[:file.rfind('.')] + "_" + to_lang + ".pptx"
+    presentation.save(filename)
 
 
 def main():
