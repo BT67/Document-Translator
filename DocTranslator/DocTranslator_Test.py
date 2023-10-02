@@ -3,6 +3,8 @@ from googletrans import Translator
 from httpcore import SyncHTTPProxy
 from base64 import b64encode
 
+from pptx.util import Pt
+
 # Important, googletrans library must be version: googletrans==3.1.0a0 or higher
 
 # def build_proxy_headers(username, password):
@@ -40,9 +42,10 @@ def translate_slideshow(file, from_lang, to_lang):
         for shape in slide.shapes:
             if hasattr(shape, "text"):
                 if len(shape.text) > 1:
-                    print("Original text=" + shape.text)
-                    print("Translated text=" + str(translator.translate(shape.text, dest=to_lang).text) + "\n")
                     shape.text = translator.translate(shape.text, dest=to_lang).text
+                    for paragraph in shape.text_frame.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.size = Pt(10)
     filename = file[:file.rfind('.')] + "_" + to_lang + ".pptx"
     presentation.save(filename)
 
