@@ -1,7 +1,22 @@
 from pptx import Presentation
 from googletrans import Translator
+from httpcore import SyncHTTPProxy
+from base64 import b64encode
 
-translator = Translator(service_urls=['translate.googleapis.com'])
+# Important, googletrans library must be version: googletrans==3.1.0a0 or higher
+
+def build_proxy_headers(username, password):
+    userpass = (username.encode("utf-8"), password.encode("utf-8"))
+    token = b64encode(b":".join(userpass))
+    return [(b"Proxy-Authorization", b"Basic " + token)]
+
+
+port = 8080
+proxy_url = (b"http", b"<proxy_host_ip>", port, b'')
+proxy_headers = build_proxy_headers("<username>", "<password>")
+proxy = {"https": SyncHTTPProxy(proxy_url=proxy_url, proxy_headers=proxy_headers)}
+
+translator = Translator(service_urls=['translate.googleapis.com'], proxies=proxy)
 
 
 def case001():
