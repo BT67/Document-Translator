@@ -3,10 +3,12 @@ from pptx import Presentation
 from googletrans import Translator
 from httpcore import SyncHTTPProxy
 from base64 import b64encode
-
+from docx import Document
 from pptx.util import Pt
 
-# Important, googletrans library must be version: googletrans==3.1.0a0 or higher
+# Important:
+# googletrans library must be version: googletrans==3.1.0a0 or higher
+# docx must be installed using [pip install python-docx] not [pip install docx]
 
 # def build_proxy_headers(username, password):
 #     userpass = (username.encode("utf-8"), password.encode("utf-8"))
@@ -28,8 +30,16 @@ def translate_spreadsheet(file, from_lang, to_lang):
     print(f"Translating spreadsheet: {file} from {from_lang} to {to_lang}")
 
 
-def translate_document(file, from_lang, to_lang):
-    print(f"Translating document: {file} from {from_lang} to {to_lang}")
+def translate_word_document(file, from_lang, to_lang):
+    print(f"Translating word document: {file} from {from_lang} to {to_lang}")
+    document = Document(file)
+    for paragraph in document.paragraphs:
+        paragraph.text = translator.translate(paragraph.text, dest=to_lang).text
+    filename = file[:file.rfind('.')] + "_" + to_lang + ".docx"
+    document.save(filename)
+
+def translate_text_file(file, from_lang, to_lang):
+    print(f"Translating text file: {file} from {from_lang} to {to_lang}")
 
 
 def translate_slideshow(file, from_lang, to_lang):
@@ -70,7 +80,9 @@ def main():
     print(file_ext)
     match file_ext:
         case ".txt":
-            translate_document(args.input, from_lang, to_lang)
+            translate_text_file(args.input, from_lang, to_lang)
+        case ".docx":
+            translate_word_document(args.input, from_lang, to_lang)
         case ".xlsx":
             translate_spreadsheet(args.input, from_lang, to_lang)
         case ".pptx":

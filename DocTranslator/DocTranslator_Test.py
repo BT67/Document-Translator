@@ -2,7 +2,7 @@ from pptx import Presentation
 from googletrans import Translator
 from httpcore import SyncHTTPProxy
 from base64 import b64encode
-
+from docx import Document
 from pptx.util import Pt
 
 # Important, googletrans library must be version: googletrans==3.1.0a0 or higher
@@ -26,13 +26,21 @@ translator = Translator(service_urls=['translate.googleapis.com'])
 def case001():
     translate_slideshow("test.pptx", "ja", "en")
 
+def case002():
+    translate_word_document("test.docx", "ja", "en")
+
 
 def translate_spreadsheet(file, from_lang, to_lang):
     print(f"Translating spreadsheet: {file} from {from_lang} to {to_lang}")
 
 
-def translate_document(file, from_lang, to_lang):
-    print(f"Translating document: {file} from {from_lang} to {to_lang}")
+def translate_word_document(file, from_lang, to_lang):
+    print(f"Translating word document: {file} from {from_lang} to {to_lang}")
+    document = Document(file)
+    for paragraph in document.paragraphs:
+        paragraph.text = translator.translate(paragraph.text, dest=to_lang).text
+    filename = file[:file.rfind('.')] + "_" + to_lang + ".docx"
+    document.save(filename)
 
 
 def translate_slideshow(file, from_lang, to_lang):
@@ -51,8 +59,12 @@ def translate_slideshow(file, from_lang, to_lang):
 
 
 def main():
-    case001()
+    # case001()
+    case002()
 
 
 if __name__ == "__main__":
     main()
+
+# TODO:
+# Add translation for tables within powerpoint slides
