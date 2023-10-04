@@ -34,7 +34,6 @@ def translate_spreadsheet(file, from_lang, to_lang):
         for column in worksheet.columns:
             for cell in column:
                 if cell.value is not None:
-                    print(cell.value)
                     cell.value = translator.translate(cell.value, dest=to_lang).text
     # for worksheet in workbook.sheetnames:
     #     worksheet.title = translator.translate(worksheet.title, dest=to_lang).text
