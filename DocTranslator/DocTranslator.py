@@ -1,4 +1,6 @@
 import argparse
+from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2.generic import DecodedStreamObject, EncodedStreamObject
 from pptx import Presentation
 from googletrans import Translator
 from httpcore import SyncHTTPProxy
@@ -8,8 +10,10 @@ from pptx.util import Pt
 from openpyxl import load_workbook
 
 # Important:
+# Python v3.10+
 # googletrans library must be version: googletrans==3.1.0a0 or higher
-# docx must be installed using [pip install python-docx] not [pip install docx]
+# docx must be installed using [pip install python-docx] NOT [pip install docx]
+# pptx must be installed using [pip install python-pptx] NOT [pip install pptx]
 
 # def build_proxy_headers(username, password):
 #     userpass = (username.encode("utf-8"), password.encode("utf-8"))
@@ -68,6 +72,18 @@ def translate_slideshow(file, from_lang, to_lang):
     filename = file[:file.rfind('.')] + "_" + to_lang + ".pptx"
     presentation.save(filename)
 
+def translate_pdf(file, from_lang, to_lang):
+    print(f"Translating pdf document: {file} from {from_lang} to {to_lang}")
+    pdf = PdfReader(file)
+    writer = PdfWriter()
+    for pageNum in range(0, len(pdf.pages) - 1):
+        text = pdf.pages[pageNum].extract_text()
+        if not text is None:
+            text = translator.translate(text, dest=to_lang).text
+            writer.add_page()
+            writer.multi_cell(200, 10, txt=text, align="L")
+    with open(file[:file.rfind('.')] + "_" + to_lang + ".pdf", 'wb') as out_file:
+        writer.write(out_file)
 
 def main():
     parser = argparse.ArgumentParser(description='Translate Documents')

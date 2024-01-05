@@ -1,5 +1,7 @@
 from openpyxl.utils import get_column_letter
 from pptx import Presentation
+import PyPDF2 as pydf
+from PyPDF2 import PdfReader, PdfWriter
 from googletrans import Translator
 from httpcore import SyncHTTPProxy
 from base64 import b64encode
@@ -37,6 +39,9 @@ def case002():
 
 def case003():
     translate_spreadsheet("test.xlsx", "ja", "en")
+
+def case004():
+    translate_pdf("test.pdf", "ja", "en")
 
 
 def translate_spreadsheet(file, from_lang, to_lang):
@@ -76,15 +81,24 @@ def translate_slideshow(file, from_lang, to_lang):
     filename = file[:file.rfind('.')] + "_" + to_lang + ".pptx"
     presentation.save(filename)
 
+def translate_pdf(file, from_lang, to_lang):
+    print(f"Translating pdf document: {file} from {from_lang} to {to_lang}")
+    pdf = PdfReader(file)
+    writer = PdfWriter()
+    for pageNum in range(0, len(pdf.pages) - 1):
+        text = pdf.pages[pageNum].extract_text()
+        if not text is None:
+            text = translator.translate(text, dest=to_lang).text
+            writer.add_page()
+            writer.multi_cell(200, 10, txt=text, align="L")
+    with open(file[:file.rfind('.')] + "_" + to_lang + ".pdf", 'wb') as out_file:
+        writer.write(out_file)
 
 def main():
-    # case001()
-    # case002()
+    case001()
+    case002()
     case003()
-
+    case004()
 
 if __name__ == "__main__":
     main()
-
-# TODO:
-# Add translation for tables within powerpoint slides
